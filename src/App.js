@@ -8,6 +8,8 @@ const NEARBY_STOPS = gql`
   query NearbyStops($latitude: Float!, $longitude: Float!){
     nearbyStops(latitude: $latitude, longitude: $longitude) {
       id
+      name
+      description
     }
   }
 `
@@ -17,10 +19,24 @@ const NearbyStops = ({latitude, longitude}) => (
     ({ loading, error, data }) => {
       if (loading) return <div>Loading...</div>
       if (error) return <div>Error</div>
-      return <div>{JSON.stringify(data, null, 2)}</div>
+      return <Stops stops={data.nearbyStops} />
     }
   }
   </Query>
+)
+
+const Stops = (props) => (
+  <div className="Stops">
+    <h2>Stops</h2>
+    {props.stops.map(stop => <Stop key={stop.id} {...stop} />)}
+  </div>
+)
+
+const Stop = ({name, description, id}) => (
+  <div id={`stop-${id}`}>
+    <h3>{name}</h3>
+    <p>{description}</p>
+  </div>
 )
 
 const Loading = () => <div>Loading...</div>
