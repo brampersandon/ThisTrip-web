@@ -22,6 +22,15 @@ const NEARBY_STOPS = gql`
   }
 `
 
+const DEPARTURES_FOR_STOP = gql`
+  query DeparturesForStop($stopId: String!) {
+    departures(stopId: $stopId) {
+      routeId
+      departingIn
+    }
+  }
+`
+
 const NearbyStops = ({ latitude, longitude }) => (
   <Query
     query={NEARBY_STOPS}
@@ -35,12 +44,31 @@ const NearbyStops = ({ latitude, longitude }) => (
   </Query>
 )
 
-const Stop = ({ name, description, id }: TTStop) => (
-  <div id={`stop-${id}`}>
-    <h3>{name}</h3>
-    <p>{description}</p>
-  </div>
-)
+const Stop = ({ name, description, id }: TTStop) => {
+  return (
+  <Query 
+    query={DEPARTURES_FOR_STOP}
+    variables={{ stopId: id}}
+  >{
+    ({ loading, error, data}) => {
+      if (loading) return <Loading />
+      if (error || !data) return <Error />
+      const { departures } = data 
+      if (!departures || departures.length === 0) return null
+      return (
+        <div id={`stop-${id}`}>
+          <h3>{name}</h3>
+          <p>{description}</p>
+          <ul>
+            {departures.map(d => (
+              <li key={`d-${d.routeId}-${d.departingIn}`}>Route {d.routeId} | {d.departingIn}</li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+  }</Query>)
+}
 
 const Stops = (props: { stops: Array<TTStop> }) => (
   <div className="Stops">
