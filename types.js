@@ -11,4 +11,9 @@ export type TTProvider = { name: string, id: string }
 export type MTCRoute = { Description: string, ProviderID: string, Route: string }
 export type TTRoute = { name: string, providerId: string, id: string }
 
+// DIRECTIONS
+export type MTCDirection = { Text: string, Value: string}
+export type TTDirection = { name: string, id: string }
+
 // STOPS
+export type TTStop = { name: string, description: string, id: string, latitude: string, longitude: string }

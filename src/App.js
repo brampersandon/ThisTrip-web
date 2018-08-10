@@ -1,8 +1,15 @@
+// @flow
 import React, { Component } from 'react';
-import './App.css';
+import './App.css'
 
-import { gql } from 'apollo-boost';
-import { Query } from 'react-apollo';
+import { gql } from 'apollo-boost'
+import { Query } from 'react-apollo'
+
+import type { TTStop } from '../types'
+
+type Coords = {
+  latitude: number, longitude: number 
+}
 
 const NEARBY_STOPS = gql`
   query NearbyStops($latitude: Float!, $longitude: Float!){
@@ -25,14 +32,14 @@ const NearbyStops = ({latitude, longitude}) => (
   </Query>
 )
 
-const Stops = (props) => (
+const Stops = (props: { stops: Array<TTStop>}) => (
   <div className="Stops">
     <h2>Stops</h2>
     {props.stops.map(stop => <Stop key={stop.id} {...stop} />)}
   </div>
 )
 
-const Stop = ({name, description, id}) => (
+const Stop = ({name, description, id}: TTStop) => (
   <div id={`stop-${id}`}>
     <h3>{name}</h3>
     <p>{description}</p>
@@ -42,7 +49,12 @@ const Stop = ({name, description, id}) => (
 const Loading = () => <div>Loading...</div>
 const Error = () => <div>Error :(</div>
 
-class Geolocation extends Component { 
+class Geolocation extends Component<{
+  children: (coords: Coords) => *
+}, {
+  coords: ?Coords,
+  error: *
+}> { 
   state = {
     coords: null,
     error: null
@@ -71,7 +83,7 @@ class Geolocation extends Component {
   }
 }
 
-class App extends Component {
+class App extends Component<{}, {}> {
   render() {
     return (
       <div className="App">
