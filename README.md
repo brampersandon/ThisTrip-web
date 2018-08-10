@@ -13,4 +13,4 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 As I elected to focus more heavily on the backend, UI styles could be improved. 
 
-Due to the time constraints, the test suite are not as comprehensive as I would prefer them to be. In addition to the implemented tests, I've added some scaffolded (but skipped) specs that indicate the kind tests I would add with additional time. 
+Due to time constraints, a strong reliance is placed on the type system to validate correctness of the code, and the use of proper property accesses. This leans on the strengths of `flow` in comparison to writing out equivalent specs in `jest` (which may look rather similar to methodically checking the existence and values of certain properties on resulting objects), however as the application grows there could be additional business logic imbued in those transformations that could necessitate more extensive testing.

@@ -27,11 +27,12 @@ const DEPARTURES_FOR_STOP = gql`
     departures(stopId: $stopId) {
       routeId
       departingIn
+      direction
     }
   }
 `
 
-const NearbyStops = ({ latitude, longitude }) => (
+const NearbyStops = ({ latitude, longitude }: Coords) => (
   <Query
     query={NEARBY_STOPS}
     variables={{ latitude: latitude, longitude: longitude }}
@@ -39,10 +40,25 @@ const NearbyStops = ({ latitude, longitude }) => (
     {({ loading, error, data }) => {
       if (loading) return <Loading />
       if (error) return <Error />
-      return <Stops stops={data.nearbyStops} />
+      return <Stops stops={data.nearbyStops} coords={{latitude, longitude}} />
     }}
   </Query>
 )
+
+const directionToLetter = (direction: String): 'N' | 'S' | 'E' | 'W' | null => {
+  switch(direction) {
+    case 'NORTHBOUND':
+      return 'N'
+    case 'SOUTHBOUND':
+      return 'S'
+    case 'EASTBOUND': 
+      return 'E'
+    case 'WESTBOUND':
+      return 'S'
+    default:
+      return null
+  }
+}
 
 const Stop = ({ name, description, id }: TTStop) => {
   return (
@@ -56,23 +72,28 @@ const Stop = ({ name, description, id }: TTStop) => {
       const { departures } = data 
       if (!departures || departures.length === 0) return null
       return (
-        <div id={`stop-${id}`}>
+        <div id={`stop-${id}`} className='Stop'>
           <h3>{name}</h3>
           <p>{description}</p>
-          <ul>
-            {departures.map(d => (
-              <li key={`d-${d.routeId}-${d.departingIn}`}>Route {d.routeId} | {d.departingIn}</li>
-            ))}
-          </ul>
+          <h4>Upcoming departures</h4>
+          <div className="Departure-container">
+            <ul className="Departure-list">
+              {departures.map(d => {
+                const key = `departure-${d.routeId}-${d.departingIn}`
+                return <li className="Departure-item" key={key}>Route {d.routeId}, {directionToLetter(d.direction)} | {d.departingIn}</li>
+              })}
+            </ul>
+          </div>
         </div>
       )
     }
   }</Query>)
 }
 
-const Stops = (props: { stops: Array<TTStop> }) => (
+const Stops = (props: { stops: Array<TTStop>, coords: Coords }) => (
   <div className="Stops">
-    <h2>Stops</h2>
+    <h2 className="Stops-header">Stops Near You</h2>
+    <p>Location: {`${props.coords.latitude}, ${props.coords.longitude}`}</p>
     {props.stops.map(stop => (
       <Stop key={stop.id} {...stop} />
     ))}
