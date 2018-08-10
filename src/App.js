@@ -12,6 +12,25 @@ type Coords = {
   longitude: number
 }
 
+// HELPER FUNCTIONS
+
+const directionToLetter = (direction: String): 'N' | 'S' | 'E' | 'W' | null => {
+  switch(direction) {
+    case 'NORTHBOUND':
+      return 'N'
+    case 'SOUTHBOUND':
+      return 'S'
+    case 'EASTBOUND': 
+      return 'E'
+    case 'WESTBOUND':
+      return 'S'
+    default:
+      return null
+  }
+}
+
+// QUERIES
+
 const NEARBY_STOPS = gql`
   query NearbyStops($latitude: Float!, $longitude: Float!) {
     nearbyStops(latitude: $latitude, longitude: $longitude) {
@@ -32,6 +51,11 @@ const DEPARTURES_FOR_STOP = gql`
   }
 `
 
+// COMPONENTS
+
+const Loading = () => <div>Loading...</div>
+const Error = () => <div>Error :(</div>
+
 const NearbyStops = ({ latitude, longitude }: Coords) => (
   <Query
     query={NEARBY_STOPS}
@@ -44,21 +68,6 @@ const NearbyStops = ({ latitude, longitude }: Coords) => (
     }}
   </Query>
 )
-
-const directionToLetter = (direction: String): 'N' | 'S' | 'E' | 'W' | null => {
-  switch(direction) {
-    case 'NORTHBOUND':
-      return 'N'
-    case 'SOUTHBOUND':
-      return 'S'
-    case 'EASTBOUND': 
-      return 'E'
-    case 'WESTBOUND':
-      return 'S'
-    default:
-      return null
-  }
-}
 
 const Stop = ({ name, description, id }: TTStop) => {
   return (
@@ -100,18 +109,16 @@ const Stops = (props: { stops: Array<TTStop>, coords: Coords }) => (
   </div>
 )
 
-const Loading = () => <div>Loading...</div>
-const Error = () => <div>Error :(</div>
+type GeolocationProps = {
+  children: (coords: Coords) => *
+}
 
-class Geolocation extends Component<
-  {
-    children: (coords: Coords) => *
-  },
-  {
-    coords: ?Coords,
-    error: *
-  }
-> {
+type GeolocationState = {
+  coords: ?Coords,
+  error: *
+}
+
+class Geolocation extends Component<GeolocationProps, GeolocationState> {
   state = {
     coords: null,
     error: null
